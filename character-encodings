@@ -16,7 +16,7 @@ a (   97) -> 00 00 00 61
 ☺ ( 9786) -> 00 00 26 3a
 € ( 8364) -> 00 00 20 ac
 
-This encoding is called UTF-32-BE. As you can see, it's pretty wasteful - for virtually all characters in this email, the first three bytes are zero!
+This encoding is called UTF-32-BE (=Big Endian. There's also the Little Endian variant, which turns around the bytes, i.e. encodes € as  ac 20 00 00 . See http://en.wikipedia.org/wiki/Endianess for details ). As you can see, it's pretty wasteful - for virtually all characters in this email, the first three bytes are zero!
 
 Some encodings deal with this by simply throwing an error for some characters their inventors consider unnecessary. For example, latin1 would encode the above as:
 
@@ -44,7 +44,7 @@ a (   97) -> 61
 
 However, there is a tremendous incentive to maintain backwards compatibility and keep using these old encodings. Imagine that the next version Windows would ship with a different encoding. Lots of software would suddenly break upon reading files produced with the old versions. Some software bugs may be uncovered as well, but the end result would be catastrophic for Microsoft; all news outlets would report that the new version of Windows breaks all software and causes catastrophic errors, and nobody would buy it.
 
-Of course, software can carry the correct encoding in metadata or add a special start marker, but since many programmers don't understand encodings, they typically ignore both.
+Of course, software can carry the correct encoding in metadata or add a special marker at the start of the string, but since many programmers don't understand encodings, they typically ignore both.
 
 Fortunately, there is a neat encoding, UTF-8, which is backwards-compatible with ASCII, produces a small output for Western (and many other commonly used) characters, *and* can encode ALL characters:
 
@@ -53,6 +53,19 @@ a (   97) -> 61
 中 (20013) -> e4 b8 ad
 ☺ ( 9786) -> e2 82 ac
 € ( 8364) -> e2 89 ba
+
+UTF-8 does this by storing the number of bytes in the first byte, like this (x are the bits of the codepoint in binary):
+
+Codepoint < 2^7 (between 0 and 127):
+0xxxxxxx          
+Codepoint < 2^11 (between 128 and 2047):
+110xxxxx 10xxxxxx
+Codepoint < 2^16 (between 2048 and 65535):
+1110xxxxx 10xxxxxx 10xxxxxx
+Codepoint < 2^21 (between 65536 and 2097151):
+1110xxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+
+and so on. Since the encoder must pick the shortest possible form for each codepoint, there are also a couple of invalid sequences, such as 11000000 10000001, which could be written shorter as 00000001 . On the other hand, that means that there is only one possible encoding for each character, and that's often a good thing.
 
 Good text-handling software uses either only UTF-8, or UTF-8 by default. For example, this includes all modern Web browsers, and many programs on Linux and Mac OS X.
 
@@ -78,7 +91,7 @@ Now, what happens when you leave out the b or u? In Python 3, the answer is simp
 
 it's a character string. b"aÄ中€☺" is illegal since it contains non-ASCII characters.
 
-In Python 2, it depends. By default, these two assignments to x are equivalent:
+In Python 2, by default, a string without a  u or b  marker is a byte string, and can contain non-ASCII cahracters. That means that these two assignments to x are equivalent:
 
 # coding: utf_32be
 x = "aÄ中€☺"
