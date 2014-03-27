@@ -1,6 +1,4 @@
-Hi Robert,
-
-first, allow me to clarify a few definitions (somewhat simplified):
+Let's start with a couple of definitions:
 
 A character is what a human would write in one or multiple strikes. Example characters are a, Ä, 中, €, ☺. A character string is, well, a string of characters, like "aÄ中€☺" .
 
@@ -70,6 +68,7 @@ and so on. Since the encoder must pick the shortest possible form for each codep
 Good text-handling software uses either only UTF-8, or UTF-8 by default. For example, this includes all modern Web browsers, and many programs on Linux and Mac OS X.
 
 
+
 In Python, you can have both strings of characters and strings of bytes. A u before the string literal is a definitive marker that the string is a character string. For example, here is a string of characters:
 
 u"aÄ中€☺"
@@ -108,25 +107,4 @@ you get the Python 3 behavior and can (but don't have to) remove all those ugly 
 
 Since I (and the other core developers) think it's much nicer to have just this single line at the top of all files instead of all the u's, we're modifying all files to include this trick whenever we touch them. We don't convert all files at once since some of our code relies on the weird Python 2 default and would break if would convert it automatically. We require new files to have the unicode_literals import at the top. This also has the advantage that we have the same behavior on Python 2 and 3 - previously, the code meant something different on Python 2 and 3 when we forgot the u or b!
 
-
-I hope that explains the change.
-
-Best,
-
-Philipp
-
-On 03/06/2014 04:12 PM, Robert wrote:
-> Hi there!
-> 
-> I'm just looking through the recent changes to the YouTube-dl project and
-> was wondering why you removed all the 'u' prefixes from the strings in
-> rtmp.py [ https://github.com/rg3/youtube-dl/pull/2516/files ]?
-> 
-> Character encodings are fascinating and there's a lot I don't understand
-> about what makes someone choose anything other than UniCode when it's
-> available.
-> 
-> Cheers!
-> 
-> 
 
